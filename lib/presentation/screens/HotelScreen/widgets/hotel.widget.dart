@@ -124,16 +124,19 @@ Widget buildHotelData({
                                     : AppColors.creamColor,
                               ),
                             ),
+                            const SizedBox(
+                              width: 30,
+                            ),
+                            Text(
+                              "75 reviews",
+                              style: TextStyle(
+                                color: themeFlag
+                                    ? AppColors.mirage
+                                    : AppColors.creamColor,
+                              ),
+                            ),
                           ],
                         ),
-                        Text(
-                          "10 reviews",
-                          style: TextStyle(
-                            color: themeFlag
-                                ? AppColors.mirage
-                                : AppColors.creamColor,
-                          ),
-                        )
                       ],
                     ),
                   ],
@@ -143,56 +146,56 @@ Widget buildHotelData({
             const SizedBox(
               height: 5,
             ),
-            Text(
-              "What they offer",
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: themeFlag ? AppColors.creamColor : AppColors.mirage,
-              ),
-            ),
-            const SizedBox(
-              height: 5,
-            ),
-            Container(
-              height: MediaQuery.of(context).size.height * 0.12,
-              child: ListView.builder(
-                itemCount: 2,
-                scrollDirection: Axis.horizontal,
-                itemBuilder: ((context, index) {
-                  return Card(
-                    elevation: 5,
-                    shadowColor: AppColors.yellowish,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    child: Container(
-                      width: 100,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Image.asset(
-                            "assets/images/wifi.png",
-                            height: 40,
-                            width: 40,
-                          ),
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          const Text(
-                            "Wifi",
-                            style: TextStyle(color: Colors.grey),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                }),
-              ),
-            ),
+            // Text(
+            //   "What they offer",
+            //   style: TextStyle(
+            //     fontSize: 18,
+            //     fontWeight: FontWeight.bold,
+            //     color: themeFlag ? AppColors.creamColor : AppColors.mirage,
+            //   ),
+            // ),
+            // const SizedBox(
+            //   height: 5,
+            // ),
+            // Container(
+            //   height: MediaQuery.of(context).size.height * 0.12,
+            //   child: ListView.builder(
+            //     itemCount: 2,
+            //     scrollDirection: Axis.horizontal,
+            //     itemBuilder: ((context, index) {
+            //       return Card(
+            //         elevation: 5,
+            //         shadowColor: AppColors.yellowish,
+            //         shape: RoundedRectangleBorder(
+            //           borderRadius: BorderRadius.circular(15),
+            //         ),
+            //         child: Container(
+            //           width: 100,
+            //           decoration: BoxDecoration(
+            //             borderRadius: BorderRadius.circular(15),
+            //           ),
+            //           child: Column(
+            //             mainAxisAlignment: MainAxisAlignment.center,
+            //             children: [
+            //               Image.asset(
+            //                 "assets/images/wifi.png",
+            //                 height: 40,
+            //                 width: 40,
+            //               ),
+            //               const SizedBox(
+            //                 height: 5,
+            //               ),
+            //               const Text(
+            //                 "Wifi",
+            //                 style: TextStyle(color: Colors.grey),
+            //               ),
+            //             ],
+            //           ),
+            //         ),
+            //       );
+            //     }),
+            //   ),
+            // ),
             const SizedBox(
               height: 5,
             ),

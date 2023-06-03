@@ -3,12 +3,16 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hotel_booking/app/constants/app.colors.dart';
 import 'package:hotel_booking/core/models/model.hotel.dart';
+import 'package:hotel_booking/core/models/model.room.dart';
 import 'package:hotel_booking/core/notifiers/authentication_notifier.dart';
 import 'package:hotel_booking/core/notifiers/booking_notifier.dart';
+import 'package:hotel_booking/core/notifiers/hotel_notifier.dart';
 import 'package:hotel_booking/core/notifiers/theme_notifier.dart';
-import 'package:hotel_booking/core/services/service.booking.dart';
+import 'package:hotel_booking/core/services/service.hotel.dart';
 import 'package:hotel_booking/presentation/widgets/custom_button.dart';
 import 'package:hotel_booking/presentation/widgets/custom_snackbar.dart';
+import 'package:hotel_booking/presentation/widgets/custom_styles.dart';
+import 'package:hotel_booking/presentation/widgets/custom_textfield.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -21,28 +25,19 @@ class BookingScreen extends StatefulWidget {
 }
 
 class _BookingScreenState extends State<BookingScreen> {
-  String? selectedValue;
+  String? selectedRoom;
+  String? selectedQuantity;
+  int selectedIndexQuan = -1;
+  int selectedIndex = -1;
+  int roomPrice = 0;
   @override
   Widget build(BuildContext context) {
     ThemeNotifier _themeNotifier =
         Provider.of<ThemeNotifier>(context, listen: true);
-    final items = [
-      'Item1',
-      'Item2',
-      'Item3',
-      'Item4',
-      'Item1',
-      'Item2',
-      'Item3',
-      'Item4',
-      'Item1',
-      'Item2',
-      'Item3',
-      'Item4',
-    ];
     var themeFlag = _themeNotifier.darkTheme;
     var userData = Provider.of<AuthenticationNotifier>(context, listen: true);
     var bookingNotifier = Provider.of<BookingNotifier>(context, listen: true);
+    HotelService hotelService = HotelService();
     return Scaffold(
       backgroundColor: themeFlag ? AppColors.mirage : AppColors.creamColor,
       appBar: AppBar(
@@ -139,23 +134,76 @@ class _BookingScreenState extends State<BookingScreen> {
                 ),
                 textAlign: TextAlign.left,
               ),
-              Text(
-                'Hotel Price: ${widget.bookingScreenArgs.hotelData.cheapestPrice} \$',
-                style: TextStyle(
-                  color: themeFlag ? AppColors.creamColor : AppColors.mirage,
-                  fontSize: 16,
-                ),
-                textAlign: TextAlign.left,
+              FutureBuilder<List<Room?>>(
+                future: hotelService.getRoomHotel(
+                    hotelId: widget.bookingScreenArgs.hotelData.id!),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    List<Room?> rooms = snapshot.data!;
+                    List<String> roomNames = rooms
+                        .where((room) => room != null)
+                        .map((room) => room!.name!)
+                        .toList();
+                    List roomPrices = rooms
+                        .where((room) => room != null)
+                        .map((room) => room!.price!)
+                        .toList();
+                    return DropdownButton2(
+                      hint: Text(
+                        'Select Room',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Theme.of(context).hintColor,
+                        ),
+                      ),
+                      items: roomNames
+                          .map((item) => DropdownMenuItem<String>(
+                                value: item,
+                                child: Text(
+                                  item,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    color: Color(0xfff5f5ff),
+                                  ),
+                                ),
+                              ))
+                          .toList(),
+                      value: selectedRoom,
+                      onChanged: (value) {
+                        setState(() {
+                          selectedRoom = value as String;
+                          selectedIndex = roomNames.indexOf(value);
+                          roomPrice = roomPrices[selectedIndex];
+                        });
+                      },
+                      buttonStyleData: const ButtonStyleData(
+                        height: 40,
+                        width: 400,
+                      ),
+                      menuItemStyleData: const MenuItemStyleData(
+                        height: 50,
+                      ),
+                      dropdownStyleData: const DropdownStyleData(
+                        maxHeight: 200,
+                      ),
+                    );
+                  } else if (snapshot.hasError) {
+                    return Text('Error: ${snapshot.error}');
+                  } else {
+                    return CircularProgressIndicator();
+                  }
+                },
               ),
+
               DropdownButton2(
                 hint: Text(
-                  'Select Room',
+                  'Select Quantity',
                   style: TextStyle(
                     fontSize: 16,
                     color: Theme.of(context).hintColor,
                   ),
                 ),
-                items: items
+                items: ['1', '2', '3', '4', '5', '6', '7', '8', '9']
                     .map((item) => DropdownMenuItem<String>(
                           value: item,
                           child: Text(
@@ -167,10 +215,22 @@ class _BookingScreenState extends State<BookingScreen> {
                           ),
                         ))
                     .toList(),
-                value: selectedValue,
+                value: selectedQuantity,
                 onChanged: (value) {
                   setState(() {
-                    selectedValue = value as String;
+                    selectedQuantity = value as String;
+                    selectedIndex = [
+                          '1',
+                          '2',
+                          '3',
+                          '4',
+                          '5',
+                          '6',
+                          '7',
+                          '8',
+                          '9'
+                        ].indexOf(value) +
+                        1;
                   });
                 },
                 buttonStyleData: const ButtonStyleData(
@@ -185,6 +245,7 @@ class _BookingScreenState extends State<BookingScreen> {
                   maxHeight: 200,
                 ),
               ),
+
               Divider(
                 color: themeFlag ? AppColors.creamColor : AppColors.mirage,
               ),
@@ -203,7 +264,7 @@ class _BookingScreenState extends State<BookingScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Start Date: ${bookingNotifier.startDate ?? ''}',
+                    'Start Date: ${bookingNotifier.startDate ?? '${DateTime.now()}'}',
                     style: TextStyle(
                       color:
                           themeFlag ? AppColors.creamColor : AppColors.mirage,
@@ -234,7 +295,7 @@ class _BookingScreenState extends State<BookingScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'End Date: ${bookingNotifier.endDate ?? ''}',
+                    'End Date: ${bookingNotifier.endDate ?? '${DateTime.now()}'}',
                     style: TextStyle(
                       color:
                           themeFlag ? AppColors.creamColor : AppColors.mirage,
@@ -271,27 +332,47 @@ class _BookingScreenState extends State<BookingScreen> {
               //   ],
               // ),
               const SizedBox(
-                height: 40,
+                height: 20,
+              ),
+              Text(
+                'Total Price: ${TotalPrice(selectedIndexQuan, roomPrice, bookingNotifier.startDate!, bookingNotifier.endDate!)}',
+                style: TextStyle(
+                  color: AppColors.yellowish,
+                  fontSize: 18,
+                ),
+                textAlign: TextAlign.left,
+              ),
+              const SizedBox(
+                height: 20,
               ),
               CustomButton.customBtnLogin(
                 buttonName: 'Book Room',
                 onTap: () async {
                   DateFormat format = DateFormat("dd-MMMM-yyyy");
-                  if (format
-                      .parse(bookingNotifier.startDate!)
-                      .isAfter(format.parse(bookingNotifier.endDate!))) {
+                  if (bookingNotifier.startDate == null &&
+                      bookingNotifier.endDate == null) {
+                    SnackUtil.showSnackBar(
+                      context: context,
+                      text: 'Please Select Dates',
+                      textColor: AppColors.creamColor,
+                      backgroundColor: Colors.red,
+                    );
+                  } else if (format
+                          .parse(bookingNotifier.startDate!)
+                          .isAfter(format.parse(bookingNotifier.endDate!)) ||
+                      format.parse(bookingNotifier.startDate!).isAtSameMomentAs(
+                          format.parse(bookingNotifier.endDate!))) {
                     SnackUtil.showSnackBar(
                       context: context,
                       text: 'Please Select the Correct Dates',
                       textColor: AppColors.creamColor,
                       backgroundColor: Colors.red,
                     );
-                  } else if (bookingNotifier.startDate != null &&
-                      bookingNotifier.endDate != null) {
+                  } else {
                     var isSuccessful = await bookingNotifier.bookHotel(
                       widget.bookingScreenArgs.hotelData.id!,
-                      '6477c0b0739cbc3974c76b37',
-                      1,
+                      hotelService.roomId![selectedIndex],
+                      int.parse(selectedQuantity!),
                       userData.userId!,
                       userData.token!,
                       bookingNotifier.startDate!,
@@ -308,19 +389,12 @@ class _BookingScreenState extends State<BookingScreen> {
                     } else {
                       SnackUtil.showSnackBar(
                         context: context,
-                        text: 'Some Error Occurred',
+                        text:
+                            'Insufficient quantity of room\nPlease Select Another Room',
                         textColor: AppColors.creamColor,
                         backgroundColor: Colors.red,
                       );
-                      Navigator.pop(context);
                     }
-                  } else {
-                    SnackUtil.showSnackBar(
-                      context: context,
-                      text: 'Please Select Dates',
-                      textColor: AppColors.creamColor,
-                      backgroundColor: Colors.red,
-                    );
                   }
                 },
                 bgColor: themeFlag ? AppColors.creamColor : AppColors.mirage,
@@ -332,6 +406,19 @@ class _BookingScreenState extends State<BookingScreen> {
       ),
     );
   }
+}
+
+int TotalPrice(int quantity, int roomPrice, String startDate, String endDate) {
+  int totalPrice = 1;
+  DateFormat format = DateFormat("dd-MMMM-yyyy");
+  if (format.parse(startDate).isBefore(format.parse(endDate))) {
+    totalPrice = quantity *
+        roomPrice *
+        format.parse(startDate).difference(format.parse(endDate)).inDays;
+  } else {
+    totalPrice = 0;
+  }
+  return totalPrice;
 }
 
 class BookingScreenArgs {

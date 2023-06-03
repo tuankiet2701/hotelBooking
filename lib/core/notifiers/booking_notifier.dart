@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hotel_booking/core/models/model.booking.dart';
 import 'package:hotel_booking/core/services/service.booking.dart';
+import 'package:intl/intl.dart';
 
 class BookingNotifier extends ChangeNotifier {
   final BookingService bookingService = BookingService();
@@ -25,8 +26,8 @@ class BookingNotifier extends ChangeNotifier {
     }
   }
 
-  String? startDate;
-  String? endDate;
+  String? startDate = '03-June-2023';
+  String? endDate = '03-June-2023';
 
   void startDateSet({required String createdAt}) {
     startDate = createdAt;
