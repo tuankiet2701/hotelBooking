@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:hotel_booking/app/constants/app.colors.dart';
 import 'package:hotel_booking/app/routes/app.routes.dart';
+import 'package:hotel_booking/core/models/model.event.dart';
 import 'package:hotel_booking/core/models/model.hotel.dart';
 import 'package:hotel_booking/core/notifiers/authentication_notifier.dart';
+import 'package:hotel_booking/core/notifiers/event_notifier.dart';
 import 'package:hotel_booking/core/notifiers/favourite_notifier.dart';
 import 'package:hotel_booking/core/notifiers/hotel_notifier.dart';
 import 'package:hotel_booking/core/notifiers/sorts_notifier.dart';
 import 'package:hotel_booking/core/notifiers/theme_notifier.dart';
+import 'package:hotel_booking/core/services/service.map.dart';
+import 'package:hotel_booking/presentation/screens/HomeScreen/widgets/events_widget.dart';
 import 'package:hotel_booking/presentation/screens/HomeScreen/widgets/feature_widget.dart';
 import 'package:hotel_booking/presentation/screens/HotelScreen/hotelScreen.dart';
 import 'package:hotel_booking/presentation/widgets/custom_snackbar.dart';
@@ -18,6 +22,7 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Provider.of<MapService>(context, listen: false).getCurrentLocation();
     ThemeNotifier _themeNotifier =
         Provider.of<ThemeNotifier>(context, listen: true);
     AuthenticationNotifier _auth =
@@ -125,7 +130,7 @@ class HomeScreen extends StatelessWidget {
                             List _snapshot = snapshot.data as List;
                             return ListView.builder(
                               shrinkWrap: true,
-                              itemCount: 4,
+                              itemCount: _snapshot.length,
                               scrollDirection: Axis.horizontal,
                               itemBuilder: (context, index) {
                                 Hotel hotelModel = _snapshot[index];
@@ -205,6 +210,37 @@ class HomeScreen extends StatelessWidget {
                 ),
                 Container(
                   height: _height * 200,
+                  child: Consumer<EventsNotifier>(
+                    builder: (context, notifier, _) {
+                      return FutureBuilder(
+                        future: notifier.getAllEvents(),
+                        builder:
+                            (BuildContext context, AsyncSnapshot snapshot) {
+                          if (snapshot.connectionState ==
+                                  ConnectionState.waiting ||
+                              !snapshot.hasData) {
+                            return ShimmerEffects.loadShimmerEvent(
+                              context: context,
+                            );
+                          } else {
+                            List _snapshot = snapshot.data as List;
+                            return ListView.builder(
+                              shrinkWrap: true,
+                              itemCount: snapshot.data.length,
+                              scrollDirection: Axis.horizontal,
+                              itemBuilder: (context, index) {
+                                Event eventsModel = _snapshot[index];
+                                return EventsItem(
+                                  eventsModel: eventsModel,
+                                  onTap: () {},
+                                );
+                              },
+                            );
+                          }
+                        },
+                      );
+                    },
+                  ),
                 ),
               ],
             ),

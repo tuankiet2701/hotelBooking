@@ -194,7 +194,6 @@ class _BookingScreenState extends State<BookingScreen> {
                   }
                 },
               ),
-
               DropdownButton2(
                 hint: Text(
                   'Select Quantity',
@@ -219,7 +218,7 @@ class _BookingScreenState extends State<BookingScreen> {
                 onChanged: (value) {
                   setState(() {
                     selectedQuantity = value as String;
-                    selectedIndex = [
+                    selectedIndexQuan = [
                           '1',
                           '2',
                           '3',
@@ -245,7 +244,6 @@ class _BookingScreenState extends State<BookingScreen> {
                   maxHeight: 200,
                 ),
               ),
-
               Divider(
                 color: themeFlag ? AppColors.creamColor : AppColors.mirage,
               ),
@@ -322,20 +320,11 @@ class _BookingScreenState extends State<BookingScreen> {
                   ),
                 ],
               ),
-              // Row(
-              //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              //   children: [
-              //     TextButton(
-              //       child: const Text('Apply'),
-              //       onPressed: () {},
-              //     )
-              //   ],
-              // ),
               const SizedBox(
                 height: 20,
               ),
               Text(
-                'Total Price: ${TotalPrice(selectedIndexQuan, roomPrice, bookingNotifier.startDate!, bookingNotifier.endDate!)}',
+                'Total Price: ${TotalPrice(selectedIndexQuan, roomPrice, bookingNotifier.startDate!, bookingNotifier.endDate!)}vnđ',
                 style: TextStyle(
                   color: AppColors.yellowish,
                   fontSize: 18,
@@ -372,7 +361,7 @@ class _BookingScreenState extends State<BookingScreen> {
                     var isSuccessful = await bookingNotifier.bookHotel(
                       widget.bookingScreenArgs.hotelData.id!,
                       hotelService.roomId![selectedIndex],
-                      int.parse(selectedQuantity!),
+                      selectedIndexQuan,
                       userData.userId!,
                       userData.token!,
                       bookingNotifier.startDate!,
@@ -414,7 +403,7 @@ int TotalPrice(int quantity, int roomPrice, String startDate, String endDate) {
   if (format.parse(startDate).isBefore(format.parse(endDate))) {
     totalPrice = quantity *
         roomPrice *
-        format.parse(startDate).difference(format.parse(endDate)).inDays;
+        format.parse(endDate).difference(format.parse(startDate)).inDays;
   } else {
     totalPrice = 0;
   }
